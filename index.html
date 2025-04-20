@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electricity Billing System</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Electricity Billing System</h1>
+
+        <label for="consumerName">Consumer Name:</label>
+        <input type="text" id="consumerName" placeholder="Enter consumer name">
+
+        <label for="deviceName">Device Name:</label>
+        <input type="text" id="deviceName" placeholder="Enter device name">
+
+        <button onclick="addDevice()">Add Device</button>
+
+        <h2>Devices</h2>
+        <table id="deviceTable">
+            <tr>
+                <th>Device Name</th>
+                <th>Voltage (V)</th>
+                <th>Current (A)</th>
+                <th>Power (W)</th>
+                <th>Units (kWh)</th>
+                <th>Cost (₹)</th>
+            </tr>
+        </table>
+
+        <h2 id="totalBill">Total Bill: ₹0</h2>
+        <button onclick="downloadBill()">Download Bill</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
