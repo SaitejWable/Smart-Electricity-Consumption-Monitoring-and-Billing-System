@@ -1,17 +1,25 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 app.use(cors());
 
-const BLYNK_TOKEN = "QhEUhcLUlVp09aXeQ37SDAkP5yHJQbSS"; // Replace with actual Blynk token
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, "public")));
+
+// Default route to serve index.html
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+const BLYNK_TOKEN = "QhEUhcLUlVp09aXeQ37SDAkP5yHJQbSS";
 const API_URL = `https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}`;
 
-let totalEnergy = 0; // Store total energy consumption (kWh)
-let lastTimestamp = Date.now(); // Store last data fetch time
+let totalEnergy = 0;
+let lastTimestamp = Date.now();
 
-// Function to fetch sensor readings from Blynk
 async function getBlynkReadings() {
     try {
         let voltageResponse = await axios.get(`${API_URL}&pin=V0`);
@@ -19,21 +27,21 @@ async function getBlynkReadings() {
 
         let voltage = parseFloat(voltageResponse.data) || 0;
         let current = parseFloat(currentResponse.data) || 0;
-        let power = voltage * current; // Power in Watts (W)
+        let power = voltage * current;
 
         let currentTimestamp = Date.now();
-        let timeDiffHours = (currentTimestamp - lastTimestamp) / (1000 * 3600); // Convert ms to hours
+        let timeDiffHours = (currentTimestamp - lastTimestamp) / (1000 * 3600);
         lastTimestamp = currentTimestamp;
 
-        let energyConsumed = (power * timeDiffHours) / 1000; // Convert W to kWh
-        totalEnergy += energyConsumed; // Accumulate energy over time
+        let energyConsumed = (power * timeDiffHours) / 1000;
+        totalEnergy += energyConsumed;
 
         return {
             voltage: voltage.toFixed(5),
             current: current.toFixed(5),
             power: power.toFixed(5),
-            energyConsumed: totalEnergy.toFixed(5), // Total energy consumption
-            totalBill: (totalEnergy * 5).toFixed(2) // ₹5 per kWh
+            energyConsumed: totalEnergy.toFixed(5),
+            totalBill: (totalEnergy * 5).toFixed(2)
         };
     } catch (error) {
         console.error("Error fetching Blynk data:", error);
@@ -41,7 +49,6 @@ async function getBlynkReadings() {
     }
 }
 
-// API Endpoint to fetch electricity readings
 app.get("/get_readings", async (req, res) => {
     let readings = await getBlynkReadings();
     if (readings) {
@@ -51,6 +58,5 @@ app.get("/get_readings", async (req, res) => {
     }
 });
 
-// Start the server
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
